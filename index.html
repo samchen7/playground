@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Playground</title>
+    <link rel="icon" href="data:,">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .left-panel, .right-panel {
+            padding: 30px;
+        }
+
+        .left-panel {
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+        }
+
+        #chatHistory {
+            min-height: 150px;
+            font-size: 13px;
+        }
+
+        .param-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .param-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .param-item label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input[type="number"],
+        input[type="range"] {
+            width: 100%;
+        }
+
+        input[type="range"] {
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e0e0e0;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            color: #667eea;
+            font-weight: 600;
+            min-width: 50px;
+        }
+
+        .token-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .token-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .token-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .token-info-label {
+            color: #666;
+        }
+
+        .token-info-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .token-warning {
+            color: #ff6b6b;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-area {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 300px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .response-area.empty {
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #c33;
+        }
+
+        .api-key-toggle {
+            position: relative;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px 10px;
+        }
+
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .left-panel {
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .param-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 API Playground</h1>
+            <p>测试和调试你的 API 调用</p>
+        </div>
+
+        <div class="content">
+            <div class="left-panel">
+                <div class="section">
+                    <div class="section-title">API 配置</div>
+                    <div class="api-key-toggle">
+                        <input type="password" id="apiKey" placeholder="输入你的 API Key" />
+                        <button class="toggle-btn" onclick="toggleApiKey()">显示</button>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <label style="display: block; font-size: 0.9em; color: #666; margin-bottom: 5px; font-weight: 500;">API 端点</label>
+                        <input type="text" id="apiEndpoint" placeholder="https://marketplace.aisa.one/pg/chat/completions" value="https://marketplace.aisa.one/pg/chat/completions" />
+                        <div style="margin-top: 5px; font-size: 0.8em; color: #999; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+                            提示：可以修改为其他 API 端点地址
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">模型选择</div>
+                    <select id="model">
+                        <optgroup label="GPT 系列">
+                            <option value="gpt-4.1">gpt-4.1</option>
+                            <option value="gpt-4o">gpt-4o</option>
+                            <option value="gpt-4o-mini">gpt-4o-mini</option>
+                            <option value="gpt-5">gpt-5</option>
+                            <option value="gpt-5-mini" selected>gpt-5-mini</option>
+                        </optgroup>
+                        <optgroup label="Claude 系列">
+                            <option value="claude-3-5-haiku-20241022">claude-3-5-haiku-20241022</option>
+                            <option value="claude-3-7-sonnet-20250219">claude-3-7-sonnet-20250219</option>
+                            <option value="claude-3-7-sonnet-20250219-thinking">claude-3-7-sonnet-20250219-thinking</option>
+                            <option value="claude-opus-4-1-20250805">claude-opus-4-1-20250805</option>
+                            <option value="claude-opus-4-1-20250805-thinking">claude-opus-4-1-20250805-thinking</option>
+                            <option value="claude-opus-4-20250514">claude-opus-4-20250514</option>
+                            <option value="claude-opus-4-20250514-thinking">claude-opus-4-20250514-thinking</option>
+                            <option value="claude-sonnet-4-20250514">claude-sonnet-4-20250514</option>
+                            <option value="claude-sonnet-4-20250514-thinking">claude-sonnet-4-20250514-thinking</option>
+                            <option value="claude-sonnet-4-5-20250929">claude-sonnet-4-5-20250929</option>
+                        </optgroup>
+                        <optgroup label="DeepSeek 系列">
+                            <option value="deepseek-r1">deepseek-r1</option>
+                            <option value="deepseek-v3">deepseek-v3</option>
+                            <option value="deepseek-v3-0324">deepseek-v3-0324</option>
+                            <option value="deepseek-v3.1">deepseek-v3.1</option>
+                        </optgroup>
+                        <optgroup label="Gemini 系列">
+                            <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
+                            <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                        </optgroup>
+                        <optgroup label="Grok 系列">
+                            <option value="grok-3">grok-3</option>
+                            <option value="grok-3-mini-beta">grok-3-mini-beta</option>
+                            <option value="grok-4">grok-4</option>
+                            <option value="grok-4-0709">grok-4-0709</option>
+                        </optgroup>
+                        <optgroup label="Qwen 系列">
+                            <option value="qwen-max">qwen-max</option>
+                            <option value="qwen-max-latest">qwen-max-latest</option>
+                            <option value="qwen-mt-plus">qwen-mt-plus</option>
+                            <option value="qwen-mt-turbo">qwen-mt-turbo</option>
+                            <option value="qwen-plus">qwen-plus</option>
+                            <option value="qwen-plus-2025-04-28">qwen-plus-2025-04-28</option>
+                            <option value="qwen-plus-latest">qwen-plus-latest</option>
+                            <option value="qwen-turbo">qwen-turbo</option>
+                            <option value="qwen-turbo-1101">qwen-turbo-1101</option>
+                            <option value="qwen-turbo-2025-04-28">qwen-turbo-2025-04-28</option>
+                            <option value="qwen-turbo-latest">qwen-turbo-latest</option>
+                            <option value="qwen-vl-max">qwen-vl-max</option>
+                            <option value="qwen-vl-plus">qwen-vl-plus</option>
+                            <option value="qwen2-vl-72b-instruct">qwen2-vl-72b-instruct</option>
+                            <option value="qwen2-vl-7b-instruct">qwen2-vl-7b-instruct</option>
+                            <option value="qwen2.5-14b-instruct-1m">qwen2.5-14b-instruct-1m</option>
+                            <option value="qwen2.5-32b-instruct">qwen2.5-32b-instruct</option>
+                            <option value="qwen2.5-3b-instruct">qwen2.5-3b-instruct</option>
+                            <option value="qwen2.5-72b-instruct">qwen2.5-72b-instruct</option>
+                            <option value="qwen2.5-7b-instruct-1m">qwen2.5-7b-instruct-1m</option>
+                            <option value="qwen2.5-vl-72b-instruct">qwen2.5-vl-72b-instruct</option>
+                            <option value="qwen2.5-vl-7b-instruct">qwen2.5-vl-7b-instruct</option>
+                            <option value="qwen3-0.6b">qwen3-0.6b</option>
+                            <option value="qwen3-1.7b">qwen3-1.7b</option>
+                            <option value="qwen3-14b">qwen3-14b</option>
+                            <option value="qwen3-235b-a22b">qwen3-235b-a22b</option>
+                            <option value="qwen3-235b-a22b-instruct-2507">qwen3-235b-a22b-instruct-2507</option>
+                            <option value="qwen3-30b-a3b">qwen3-30b-a3b</option>
+                            <option value="qwen3-32b">qwen3-32b</option>
+                            <option value="qwen3-4b">qwen3-4b</option>
+                            <option value="qwen3-8b">qwen3-8b</option>
+                            <option value="qwen3-coder-480b-a35b-instruct">qwen3-coder-480b-a35b-instruct</option>
+                            <option value="qwen3-coder-plus">qwen3-coder-plus</option>
+                            <option value="qwen3-coder-plus-2025-07-22">qwen3-coder-plus-2025-07-22</option>
+                            <option value="qwen3-max">qwen3-max</option>
+                            <option value="qwen3-max-preview">qwen3-max-preview</option>
+                            <option value="qwen3-vl-235b-a22b-instruct">qwen3-vl-235b-a22b-instruct</option>
+                        </optgroup>
+                        <optgroup label="Sora 系列">
+                            <option value="sora-2">sora-2</option>
+                            <option value="sora-2-pro">sora-2-pro</option>
+                        </optgroup>
+                        <optgroup label="Embedding 系列">
+                            <option value="text-embedding-3-large">text-embedding-3-large</option>
+                            <option value="text-embedding-3-small">text-embedding-3-small</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">提示词（指令方向）</div>
+                    <textarea id="prompt" placeholder="输入你想要写东西的方向或指令..."></textarea>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">聊天记录（原材料）</div>
+                    <textarea id="chatHistory" placeholder='输入聊天记录内容作为原材料，可以是任意格式的文本。&#10;&#10;提示词和聊天记录都会发送给大语言模型。'></textarea>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">参数设置</div>
+                    <div class="param-group">
+                        <div class="param-item">
+                            <label>Temperature <span class="range-value" id="tempValue">1.0</span></label>
+                            <input type="range" id="temperature" min="0" max="2" step="0.1" value="1.0" oninput="updateRangeValue('temperature', 'tempValue')" />
+                        </div>
+                        <div class="param-item">
+                            <label>Max Tokens <span class="range-value" id="maxTokensValue">2000</span></label>
+                            <input type="number" id="maxTokens" min="1" max="32000" value="2000" oninput="updateMaxTokens()" />
+                        </div>
+                    </div>
+                    <div class="param-group">
+                        <div class="param-item">
+                            <label>Top P <span class="range-value" id="topPValue">1.0</span></label>
+                            <input type="range" id="topP" min="0" max="1" step="0.01" value="1.0" oninput="updateRangeValue('topP', 'topPValue')" />
+                        </div>
+                        <div class="param-item">
+                            <label>Frequency Penalty <span class="range-value" id="freqPenaltyValue">0.0</span></label>
+                            <input type="range" id="frequencyPenalty" min="-2" max="2" step="0.1" value="0.0" oninput="updateRangeValue('frequencyPenalty', 'freqPenaltyValue')" />
+                        </div>
+                    </div>
+                    <div class="param-group">
+                        <div class="param-item">
+                            <label>Presence Penalty <span class="range-value" id="presPenaltyValue">0.0</span></label>
+                            <input type="range" id="presencePenalty" min="-2" max="2" step="0.1" value="0.0" oninput="updateRangeValue('presencePenalty', 'presPenaltyValue')" />
+                        </div>
+                        <div class="param-item">
+                            <label>最大 Token 限制</label>
+                            <input type="number" id="tokenLimit" min="1" max="100000" value="4000" oninput="updateTokenInfo()" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Token 信息</div>
+                    <div class="token-info">
+                        <div class="token-info-item">
+                            <span class="token-info-label">输入 Token:</span>
+                            <span class="token-info-value" id="inputTokens">0</span>
+                        </div>
+                        <div class="token-info-item">
+                            <span class="token-info-label">输出 Token:</span>
+                            <span class="token-info-value" id="outputTokens">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" id="sendBtn" onclick="sendRequest()">发送请求</button>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <div>正在处理请求...</div>
+                </div>
+                <div id="error"></div>
+            </div>
+
+            <div class="right-panel">
+                <div class="section">
+                    <div class="section-title">响应结果</div>
+                    <div class="response-area empty" id="response">等待响应...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 简单的 token 估算函数（实际应该使用 tiktoken 等库）
+        function estimateTokens(text) {
+            // 粗略估算：中文约 1.5 字符 = 1 token，英文约 4 字符 = 1 token
+            const chineseChars = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+            const englishChars = text.length - chineseChars;
+            return Math.ceil(chineseChars / 1.5 + englishChars / 4);
+        }
+
+        function updateRangeValue(inputId, valueId) {
+            const input = document.getElementById(inputId);
+            const valueDisplay = document.getElementById(valueId);
+            valueDisplay.textContent = parseFloat(input.value).toFixed(2);
+        }
+
+        function updateMaxTokens() {
+            const maxTokens = parseInt(document.getElementById('maxTokens').value) || 2000;
+            const tokenLimit = parseInt(document.getElementById('tokenLimit').value) || 4000;
+            
+            // 计算当前输入token（提示词和聊天记录的总和）
+            const chatHistory = getChatHistory();
+            const prompt = document.getElementById('prompt').value;
+            let inputTokens = 0;
+            if (prompt) {
+                inputTokens += estimateTokens(prompt);
+            }
+            if (chatHistory) {
+                inputTokens += estimateTokens(chatHistory);
+            }
+            
+            // 检查输入+输出是否超过限制
+            const totalTokens = inputTokens + maxTokens;
+            if (totalTokens > tokenLimit) {
+                const maxAllowedOutput = Math.max(0, tokenLimit - inputTokens);
+                document.getElementById('maxTokens').value = maxAllowedOutput;
+                document.getElementById('maxTokensValue').textContent = maxAllowedOutput;
+            } else {
+                document.getElementById('maxTokensValue').textContent = maxTokens;
+            }
+            updateTokenInfo();
+        }
+
+        function getChatHistory() {
+            const chatHistoryText = document.getElementById('chatHistory').value.trim();
+            return chatHistoryText || null;
+        }
+
+        function updateTokenInfo() {
+            const chatHistory = getChatHistory();
+            const prompt = document.getElementById('prompt').value;
+            let inputTokens = 0;
+            
+            // 计算提示词和聊天记录的总token数
+            if (prompt) {
+                inputTokens += estimateTokens(prompt);
+            }
+            if (chatHistory) {
+                inputTokens += estimateTokens(chatHistory);
+            }
+            
+            const outputTokens = parseInt(document.getElementById('maxTokens').value) || 2000;
+
+            document.getElementById('inputTokens').textContent = inputTokens;
+            document.getElementById('outputTokens').textContent = outputTokens;
+        }
+
+        function toggleApiKey() {
+            const apiKeyInput = document.getElementById('apiKey');
+            const toggleBtn = document.querySelector('.toggle-btn');
+            
+            if (apiKeyInput.type === 'password') {
+                apiKeyInput.type = 'text';
+                toggleBtn.textContent = '隐藏';
+            } else {
+                apiKeyInput.type = 'password';
+                toggleBtn.textContent = '显示';
+            }
+        }
+
+        // 监听输入变化
+        document.getElementById('prompt').addEventListener('input', updateTokenInfo);
+        document.getElementById('chatHistory').addEventListener('input', updateTokenInfo);
+        document.getElementById('tokenLimit').addEventListener('input', function() {
+            updateMaxTokens();
+        });
+
+        async function sendRequest() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const model = document.getElementById('model').value;
+            const prompt = document.getElementById('prompt').value.trim();
+            const chatHistory = getChatHistory();
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const maxTokens = parseInt(document.getElementById('maxTokens').value);
+            const topP = parseFloat(document.getElementById('topP').value);
+            const frequencyPenalty = parseFloat(document.getElementById('frequencyPenalty').value);
+            const presencePenalty = parseFloat(document.getElementById('presencePenalty').value);
+
+            // 允许的模型列表（严格遵守）
+            const allowedModels = [
+                'gpt-4.1', 'gpt-4o', 'gpt-4o-mini', 'gpt-5', 'gpt-5-mini',
+                'claude-3-5-haiku-20241022', 'claude-3-7-sonnet-20250219', 'claude-3-7-sonnet-20250219-thinking',
+                'claude-opus-4-1-20250805', 'claude-opus-4-1-20250805-thinking', 'claude-opus-4-20250514',
+                'claude-opus-4-20250514-thinking', 'claude-sonnet-4-20250514', 'claude-sonnet-4-20250514-thinking',
+                'claude-sonnet-4-5-20250929', 'deepseek-r1', 'deepseek-v3', 'deepseek-v3-0324', 'deepseek-v3.1',
+                'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro',
+                'grok-3', 'grok-3-mini-beta', 'grok-4', 'grok-4-0709',
+                'qwen-max', 'qwen-max-latest', 'qwen-mt-plus', 'qwen-mt-turbo', 'qwen-plus',
+                'qwen-plus-2025-04-28', 'qwen-plus-latest', 'qwen-turbo', 'qwen-turbo-1101',
+                'qwen-turbo-2025-04-28', 'qwen-turbo-latest', 'qwen-vl-max', 'qwen-vl-plus',
+                'qwen2-vl-72b-instruct', 'qwen2-vl-7b-instruct', 'qwen2.5-14b-instruct-1m',
+                'qwen2.5-32b-instruct', 'qwen2.5-3b-instruct', 'qwen2.5-72b-instruct',
+                'qwen2.5-7b-instruct-1m', 'qwen2.5-vl-72b-instruct', 'qwen2.5-vl-7b-instruct',
+                'qwen3-0.6b', 'qwen3-1.7b', 'qwen3-14b', 'qwen3-235b-a22b',
+                'qwen3-235b-a22b-instruct-2507', 'qwen3-30b-a3b', 'qwen3-32b', 'qwen3-4b',
+                'qwen3-8b', 'qwen3-coder-480b-a35b-instruct', 'qwen3-coder-plus',
+                'qwen3-coder-plus-2025-07-22', 'qwen3-max', 'qwen3-max-preview',
+                'qwen3-vl-235b-a22b-instruct', 'sora-2', 'sora-2-pro',
+                'text-embedding-3-large', 'text-embedding-3-small'
+            ];
+
+            // 验证
+            if (!apiKey) {
+                showError('请输入 API Key');
+                return;
+            }
+
+            // 验证模型名称是否在允许列表中
+            if (!allowedModels.includes(model)) {
+                showError(`模型 "${model}" 不在允许列表中，请从下拉菜单选择支持的模型`);
+                return;
+            }
+
+            // 验证至少需要提示词或聊天记录之一
+            if (!prompt && !chatHistory) {
+                showError('请输入提示词或聊天记录');
+                return;
+            }
+
+            // 组合提示词和聊天记录
+            let content = '';
+            if (prompt && chatHistory) {
+                content = `提示词（指令方向）：\n${prompt}\n\n聊天记录（原材料）：\n${chatHistory}`;
+            } else if (prompt) {
+                content = prompt;
+            } else if (chatHistory) {
+                content = chatHistory;
+            }
+
+            let messages = [{ role: 'user', content: content }];
+
+            // 检查 token 限制
+            let inputTokens = 0;
+            if (prompt) {
+                inputTokens += estimateTokens(prompt);
+            }
+            if (chatHistory) {
+                inputTokens += estimateTokens(chatHistory);
+            }
+            const totalTokens = inputTokens + maxTokens;
+            const tokenLimit = parseInt(document.getElementById('tokenLimit').value);
+            
+            if (totalTokens > tokenLimit) {
+                showError(`Token 总数 (${totalTokens}) 超过限制 (${tokenLimit})`);
+                return;
+            }
+
+            // UI 更新
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('error').innerHTML = '';
+            document.getElementById('response').textContent = '';
+            document.getElementById('response').classList.remove('empty');
+
+            try {
+                // 获取配置的API端点
+                const apiEndpoint = document.getElementById('apiEndpoint').value.trim() || 'https://marketplace.aisa.one/pg/chat/completions';
+                
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: messages,
+                        temperature: temperature,
+                        max_tokens: maxTokens,
+                        top_p: topP,
+                        frequency_penalty: frequencyPenalty,
+                        presence_penalty: presencePenalty
+                    })
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (parseError) {
+                    const text = await response.text();
+                    throw new Error('无法解析响应: ' + text);
+                }
+
+                // 检查是否是错误响应
+                if (!response.ok || (data && data.success === false)) {
+                    let errorMsg = '';
+                    
+                    // 处理不同的错误格式
+                    if (data?.message) {
+                        errorMsg = data.message;
+                    } else if (data?.error?.message) {
+                        errorMsg = data.error.message;
+                    } else if (data?.error) {
+                        errorMsg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
+                    } else if (typeof data === 'string') {
+                        errorMsg = data;
+                    } else {
+                        errorMsg = JSON.stringify(data);
+                    }
+                    
+                    // 特殊处理认证错误
+                    if (errorMsg.toLowerCase().includes('invalid') || 
+                        errorMsg.toLowerCase().includes('permission') ||
+                        errorMsg.toLowerCase().includes('unauthorized') ||
+                        errorMsg.toLowerCase().includes('access token')) {
+                        errorMsg = '🔐 API Key 无效或没有权限\n\n' + errorMsg + '\n\n请检查：\n1. API Key 是否正确\n2. API Key 是否已过期\n3. API Key 是否有访问该端点的权限';
+                    }
+                    
+                    throw new Error(errorMsg);
+                }
+
+                // 显示响应 - 使用更安全的方式
+                let responseText = '无响应内容';
+                try {
+                    if (data && typeof data === 'object') {
+                        if (data.choices && Array.isArray(data.choices) && data.choices.length > 0) {
+                            const firstChoice = data.choices[0];
+                            if (firstChoice) {
+                                responseText = firstChoice.message?.content || firstChoice.text || firstChoice.content || '无响应内容';
+                            }
+                        } else if (data.content) {
+                            responseText = data.content;
+                        } else if (data.text) {
+                            responseText = data.text;
+                        } else {
+                            responseText = JSON.stringify(data, null, 2);
+                        }
+                    } else {
+                        responseText = String(data);
+                    }
+                } catch (parseError) {
+                    responseText = '解析响应时出错: ' + parseError.message + '\n\n原始响应: ' + JSON.stringify(data, null, 2);
+                }
+                
+                document.getElementById('response').textContent = responseText;
+
+                // 更新 token 使用情况
+                if (data && data.usage) {
+                    document.getElementById('inputTokens').textContent = data.usage.prompt_tokens || inputTokens;
+                    document.getElementById('outputTokens').textContent = data.usage.completion_tokens || 0;
+                }
+
+            } catch (error) {
+                const errorMessage = error.message || String(error);
+                showError('错误: ' + errorMessage);
+                document.getElementById('response').textContent = '请求失败: ' + errorMessage;
+            } finally {
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `<div class="error">${message}</div>`;
+            setTimeout(() => {
+                errorDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        // 初始化
+        updateTokenInfo();
+    </script>
+</body>
+</html>
